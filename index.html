@@ -196,6 +196,7 @@
     text-align:left;
     padding: 8px 6px;
     border-bottom: 1px solid var(--line);
+    vertical-align: middle;
   }
   th{ color: var(--calabaza); font-size:12px; text-transform:uppercase; letter-spacing:0.5px; }
   .empty{
@@ -625,12 +626,21 @@ async function cargarTablaClientes(){
 
   clientes.sort((a,b) => b.puntos - a.puntos);
 
-  let html = '<table><thead><tr><th>Nombre</th><th>Teléfono</th><th>Puntos</th></tr></thead><tbody>';
+  let html = '<table><thead><tr><th>Nombre</th><th>Teléfono</th><th>Puntos</th><th></th></tr></thead><tbody>';
   clientes.forEach(c => {
-    html += `<tr><td>${c.nombre} ${c.apellido}</td><td>${c.phone}</td><td>${c.puntos}</td></tr>`;
+    html += `<tr><td>${c.nombre} ${c.apellido}</td><td>${c.phone}</td><td>${c.puntos}</td><td><button class="claim" onclick="eliminarCliente('${c.phone}', '${(c.nombre + ' ' + c.apellido).replace(/'/g, "\\'")}')">Eliminar</button></td></tr>`;
   });
   html += '</tbody></table>';
   wrap.innerHTML = html;
+}
+
+async function eliminarCliente(phone, nombreCompleto){
+  const confirmado = confirm(`¿Seguro que querés eliminar a ${nombreCompleto} (${phone})? Esta acción no se puede deshacer.`);
+  if(!confirmado) return;
+
+  await db.collection('clientes').doc(phone).delete();
+  clientesCache = null;
+  cargarTablaClientes();
 }
 </script>
 </body>
